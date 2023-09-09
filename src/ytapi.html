@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .wrap {
+        perspective: 2000px;
+        transform-style: preserve-3d;
+    }
+  
+    .player {
+        transform-origin: 71% 50%;
+        transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7);
+    }
+  
+    .video_title {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 72px;
+      padding-left: 40px;
+      -webkit-text-stroke: 2px #4375ff;
+      color: #ffffff;
+    }
+  
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  
+    .float-1 {
+      animation: float-1 6s linear infinite both;
+    }
+    
+    @keyframes float-1 {
+      0% {
+        transform-origin: 71% 50%;
+          transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7) translate(0);
+      }
+      20% {
+        transform-origin: 71% 50%;
+          transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7) translate(0px, 10px);
+      }
+      40% {
+        transform-origin: 71% 50%;
+          transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7) translate(0px, -10px);
+      }
+      60% {
+        transform-origin: 71% 50%;
+        transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7) translate(0px, 10px);
+      }
+      80% {
+        transform-origin: 71% 50%;
+          transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7) translate(0px, -10px);
+      }
+      100% {
+        transform-origin: 71% 50%;
+          transform: rotateX(11deg) rotateY(-35deg) scale3d(0.7, 0.7, 0.7) translate(0);
+      }
+    }
+  
+    .rightside {
+      transform-origin: 71% 50%;
+      transform: rotateX(11deg) rotateY(75deg) scale3d(0.7, 0.7, 0.7) translate(0) translateZ(396px) translateY(-544px);
+      /* transform: rotateY(90deg) translateZ(90px); */
+      width: 640px;
+      height: 524px;
+      background-color: black;
+      position: absolute;
+    }
+  
+    .bottom {
+      transform-origin: 71% 50%;
+      transform: rotateX(-80deg) rotateY(75deg) scale3d(0.7, 0.7, 0.7) translate(0) translateZ(90px) translateY(-544px);
+      /* transform: rotateX(-90deg) translateZ(90px); */
+      width: 640px;
+      height: 524px;
+      background-color: red;
+      /* position: absolute; */
+    }
+  
+    .countdown {
+      position: absolute;
+      bottom: 200px;
+      left: 400px;
+      color: white;
+      font-size: 48pt;
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+  <div class="container">
+    <div id="video_title" class="video_title"></div>
+    <div class="wrap">
+      <div id="playercontainer" class="player float-1">
+        <div id="player"></div>
+        <!-- <div class="rightside"></div> -->
+        <!-- <div class="bottom"></div> -->
+      </div>
+      
+    </div>
+  </div>
+    
+  <div id="fullscreen"></div>
+  <div id="countdown" class="countdown"></div>
+
+  <script src="view.js"></script>
+</body>
+</html>  
