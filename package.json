@@ -1,0 +1,29 @@
+{
+  "name": "obs-websockets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node build/main.js",
+    "copyhtml": "cp src/ytapi.html src/view.js build/",
+    "buirt": "yarn copyhtml && tsc && node build/main.js",
+    "build": "yarn copyhtml && tsc",
+    "watch": "ts-node src/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "easymidi": "^3.1.0",
+    "node-audio-volume-mixer": "^1.0.3",
+    "obs-websocket-js": "^5.0.3"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^20.4.8",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1"
+  }
+}
