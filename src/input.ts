@@ -1,20 +1,50 @@
 import * as easymidi from 'easymidi';
-import { GetDosboxMutedState, SetMuteStateForDosbox, getDosBoxSessionPid } from './dosbox.js';
-import { GetMicState, MuteMic, SetCurrentScene, SetMicState, StopStream, UnmuteMic } from './obs.js';
+import { GetDosboxMutedState, SetMuteStateForDosbox, getDosBoxSessionPid } from './game-process.js';
+import {
+    GetMicState,
+    MuteMic,
+    SetCurrentScene,
+    SetMicState,
+    StopStream,
+    UnmuteMic,
+    SetLabelOnScene,
+    GetOutputList
+} from './obs.js';
 import { CONFIG } from './config.js';
-import { MIDI_KEYBOARD_PADS, ScenesEnum } from './const.js';
+import {
+    ScenesEnum,
+    STARTING_SCENE,
+    GAME_SCENE,
+    ENDING_SCENE,
+    SHORT_BRB,
+    TOGGLE_MUTE_DOSBOX,
+    TOGGLE_MIC,
+    EMPTY_SCENE,
+    LONG_BRB,
+    CODING_SCENE_UPPER_LEFT,
+    INCREASE_DEATH_COUNTER,
+    DECREASE_DEATH_COUNTER
+} from './const.js';
 
-const { MIDI_KEYBOARD_DEVICE_NAME } = CONFIG;
-const { PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8 } = MIDI_KEYBOARD_PADS;
+const { MIDI_KEYBOARD_DEVICE_NAME, GAME_EXE } = CONFIG;
 
-const input = new easymidi.Input(MIDI_KEYBOARD_DEVICE_NAME);
+const isDevMode = process.argv[2] === '--dev';
+
+let deathCounter = 0;
+
+const handleMIDIKeyboardInput = async () => {
+
+    const input = new easymidi.Input(MIDI_KEYBOARD_DEVICE_NAME);
 
     input.on('noteon', async (msg: easymidi.Note) => {
         const { note } = msg;
+        if (isDevMode) {
+            console.log({ note });
+        }
         switch (note) {
 
             // msg.note === 40: starting scene
-            case PAD5:
+            case STARTING_SCENE:
                 SetMuteStateForDosbox(true);
                 await MuteMic();
                 // await SetCurrentScene('Starting');
@@ -22,31 +52,32 @@ const input = new easymidi.Input(MIDI_KEYBOARD_DEVICE_NAME);
                 break;
 
             // 41: game scene
-            case PAD6:
+            case GAME_SCENE:
+                await SetLabelOnScene('Death counter (value)', deathCounter.toString());
                 SetMuteStateForDosbox(false);
                 await UnmuteMic();
                 await SetCurrentScene(ScenesEnum.GameAndCamera);
                 break;
 
             // 42: ending scene
-            case PAD7:
+            case ENDING_SCENE:
                 SetMuteStateForDosbox(true);
                 await MuteMic();
                 await SetCurrentScene(ScenesEnum.Ending);
                 break;
 
             // 43: short brb
-            case PAD8:
+            case SHORT_BRB:
                 SetMuteStateForDosbox(true);
                 await MuteMic();
                 await SetCurrentScene(ScenesEnum.ShortBRB);
                 break;
 
             // 36: toggle mute dosbox
-            case PAD1:
+            case TOGGLE_MUTE_DOSBOX:
                 const dosboxPid = getDosBoxSessionPid();
                 if (!dosboxPid) {
-                    console.warn('dosbox.exe not found!');
+                    console.warn(`${GAME_EXE} not found!`);
                     return;
                 }
                 const isDosboxMuted = GetDosboxMutedState(dosboxPid);
@@ -54,25 +85,51 @@ const input = new easymidi.Input(MIDI_KEYBOARD_DEVICE_NAME);
                 break;
 
             // 37: toggle mic
-            case PAD2:
+            case TOGGLE_MIC:
                 const muteState = await GetMicState();
                 const isMicMuted = muteState.inputMuted;
                 SetMicState(!isMicMuted);
                 break;
 
             // 38: to empty scene
-            case PAD3:
+            case EMPTY_SCENE:
                 SetMuteStateForDosbox(true);
                 await MuteMic();
                 await SetCurrentScene(ScenesEnum.Empty);
-                await StopStream();
+                // await StopStream();
                 break;
 
             // 39: long brb
-            case PAD4:
+            case LONG_BRB:
                 SetMuteStateForDosbox(true);
                 await MuteMic();
                 await SetCurrentScene(ScenesEnum.LongBRB);
                 break;
+
+            case CODING_SCENE_UPPER_LEFT:
+                await UnmuteMic();
+                await SetCurrentScene(ScenesEnum.Coding);
+                break;
+
+            case INCREASE_DEATH_COUNTER:
+                deathCounter = deathCounter > 0 ? deathCounter - 1 : 0;
+                await SetLabelOnScene('Death counter (value)', deathCounter.toString());
+                break;
+
+            case DECREASE_DEATH_COUNTER:
+                deathCounter += 1;
+                await SetLabelOnScene('Death counter (value)', deathCounter.toString());
+                break;
         }
     });
+        
+    if (!isDevMode) {
+        await MuteMic();
+        await SetCurrentScene(ScenesEnum.PreStart);
+    }
+
+    const outputs = await GetOutputList();
+    console.log({ outputs: outputs.outputs });
+}
+
+export { handleMIDIKeyboardInput };

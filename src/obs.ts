@@ -1,13 +1,23 @@
 import OBSWebSocket, { OBSRequestTypes, OBSResponseTypes } from "obs-websocket-js";
 import { CONFIG } from './config.js';
+import { RunEverythingForStream, RunOBS } from "./spawner.js";
 
-const { SET_INPUT_MUTE, START_STREAM, STOP_STREAM, SET_SCENE, GET_OUTPUT_LIST, GET_INPUT_MUTE }: Record<string, keyof OBSRequestTypes> = {
+const {
+    SET_INPUT_MUTE,
+    START_STREAM,
+    STOP_STREAM,
+    SET_SCENE,
+    GET_OUTPUT_LIST,
+    GET_INPUT_MUTE,
+    SET_INPUT_SETTINGS
+ }: Record<string, keyof OBSRequestTypes> = {
     SET_INPUT_MUTE: 'SetInputMute',
     START_STREAM: 'StartStream',
     STOP_STREAM: 'StopStream',
     SET_SCENE: 'SetCurrentProgramScene',
     GET_OUTPUT_LIST: 'GetOutputList',
     GET_INPUT_MUTE: 'GetInputMute',
+    SET_INPUT_SETTINGS: 'SetInputSettings'
 };
 
 const { OBS_ADDRESS, OBS_PASSWORD, OBS_PORT } = CONFIG;
@@ -16,11 +26,13 @@ const obs = new OBSWebSocket();
 
 const ConnectToObs = async () => {
     try {
+        await RunOBS();
         const {
             obsWebSocketVersion,
             negotiatedRpcVersion
         } = await obs.connect(`ws://${OBS_ADDRESS}:${OBS_PORT}`, OBS_PASSWORD);
-        console.log(`Connected to server ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+        console.log(`Connected to server ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`);
+        await RunEverythingForStream();
     } catch (error: any) {
         console.error('Failed to connect', error.code, error.message);
         console.log(error);
@@ -52,4 +64,19 @@ const GetOutputList = (): Promise<OBSResponseTypes['GetOutputList']> =>
 const GetMicState = (): Promise<OBSResponseTypes['GetInputMute']> =>
     obs.call(GET_INPUT_MUTE, { inputName: 'Mic/Aux' });
 
-export { ConnectToObs, MuteMic, UnmuteMic, SetMicState, StartStream, SetCurrentScene, GetOutputList, StopStream, GetMicState, obs };
+const SetLabelOnScene = (inputName: string, text: string): Promise<OBSResponseTypes['SetInputSettings']> =>
+    obs.call(SET_INPUT_SETTINGS, { inputName, inputSettings: { text } });
+
+export {
+    ConnectToObs,
+    MuteMic,
+    UnmuteMic,
+    SetMicState,
+    StartStream,
+    SetCurrentScene,
+    GetOutputList,
+    StopStream,
+    GetMicState,
+    obs,
+    SetLabelOnScene
+};

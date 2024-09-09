@@ -1,15 +1,17 @@
 import 'dotenv/config';
-import { MuteMic, ConnectToObs, StartStream, SetCurrentScene } from './obs.js';
-import { SetMuteStateForDosbox } from './dosbox.js';
+import { MuteMic, ConnectToObs, SetCurrentScene } from './obs.js';
+import { SetMuteStateForDosbox } from './game-process.js';
 import { ScenesEnum } from './const.js';
+import { handleMIDIKeyboardInput } from './input.js';
 
 await ConnectToObs();
 
 SetMuteStateForDosbox(true);
 
-import './input.js';
+await handleMIDIKeyboardInput();
+// import './input.js';
 
-await StartStream();
+//await StartStream();
 
 await MuteMic();
 

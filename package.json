@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node build/main.js",
-    "copyhtml": "cp src/ytapi.html src/view.js build/",
+    "copyhtml": "cp src/ytapi.html src/view.js src/popout_chat.html build/",
     "buirt": "yarn copyhtml && tsc && node build/main.js",
     "build": "yarn copyhtml && tsc",
     "watch": "ts-node src/main.ts"

@@ -3,11 +3,15 @@ type Config = {
     OBS_ADDRESS: string,
     OBS_PORT: string,
     OBS_PASSWORD: string,
+    GAME_EXE: string,
 };
 
+const ENV = process.env;
+
 export const CONFIG: Config = {
-    MIDI_KEYBOARD_DEVICE_NAME: process.env.MIDI_KEYBOARD_DEVICE_NAME || '',
-    OBS_ADDRESS: process.env.OBS_ADDRESS || '',
-    OBS_PORT: process.env.OBS_PORT || '',
-    OBS_PASSWORD: process.env.OBS_PASSWORD || ''
+    MIDI_KEYBOARD_DEVICE_NAME: ENV.MIDI_KEYBOARD_DEVICE_NAME || '',
+    OBS_ADDRESS: ENV.OBS_ADDRESS || '',
+    OBS_PORT: ENV.OBS_PORT || '',
+    OBS_PASSWORD: ENV.OBS_PASSWORD || '',
+    GAME_EXE: ENV.GAME_EXE || '',
 }

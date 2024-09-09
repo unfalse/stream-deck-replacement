@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { SetCurrentScene, StopStream, UnmuteMic } from './obs.js';
-import { SetMuteStateForDosbox } from './dosbox.js';
+import { SetMuteStateForDosbox } from './game-process.js';
 import { SERVER_PORT, ScenesEnum } from './const.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,11 +13,18 @@ const __dirname = path.dirname(__filename);
 const listener = async (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage> & {
     req: http.IncomingMessage
 }) => {
-    const { url = '' } = req;
-    const questionMarkPos = url.indexOf('?');
-    const urlPath = questionMarkPos > 0 ? url.slice(0, questionMarkPos) : req.url;
+    console.log(__dirname + "\\ytapi.html");
+    console.log({ reqUrl: req.url });
+    const urlParams = new URLSearchParams(req.url);
+    const streamState = urlParams.get('streamState');
+    const youtube = urlParams.get('youtube');
+    const toNextScene = urlParams.get('nextScene');
+    const isItEndScene = urlParams.get('endScene');
+    // const { url = '' } = req;
+    // const questionMarkPos = url.indexOf('?');
+    // const urlPath = questionMarkPos > 0 ? url.slice(0, questionMarkPos) : req.url;
 
-    switch (urlPath) {
+    switch (req.url) {
         case "/ytapi":
             console.log('/ytapi');
             const contents = await fs.readFile(__dirname + "\\ytapi.html");
@@ -43,6 +50,12 @@ const listener = async (req: http.IncomingMessage, res: http.ServerResponse<http
             console.log('/end');
             await SetCurrentScene(ScenesEnum.Empty);
             await StopStream();
+            break
+        case "/popout_chat":
+            const popoutChatHtmlContents = await fs.readFile(__dirname + "\\popout_chat.html");
+            res.setHeader("Content-Type", "text/html");
+            res.writeHead(200);
+            res.end(popoutChatHtmlContents);
             break
         default:
             res.end();
